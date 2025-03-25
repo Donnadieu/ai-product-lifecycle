@@ -1,0 +1,24 @@
+services:
+  # Backend API service
+  - type: web
+    name: ai-product-lifecycle-api
+    env: python
+    buildCommand: cd ai-product-lifecycle-be && pip install -r requirements.txt
+    startCommand: cd ai-product-lifecycle-be && uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: OPENAI_API_KEY
+        sync: false # This will be set manually in Render dashboard
+
+  # Frontend static site
+  - type: web
+    name: ai-product-lifecycle-ui
+    env: static
+    buildCommand: cd ai-product-lifecycle-ui && npm install && npm run build
+    staticPublishPath: ./ai-product-lifecycle-ui/build
+    envVars:
+      - key: NODE_VERSION
+        value: 18.0.0
+      - key: REACT_APP_API_URL
+        value: https://ai-product-lifecycle-api.onrender.com # Will be the URL of our API service
