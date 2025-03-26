@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
-from openai.error import OpenAIError, RateLimitError, AuthenticationError
+from openai import APIError, RateLimitError, AuthenticationError
 from dotenv import load_dotenv
 from stakeholder_agents import run_stakeholder_crew
 from pm_agents import run_pm_crew
@@ -26,7 +26,7 @@ def handle_openai_errors(func):
                 status_code=401,
                 detail="Invalid OpenAI API key. Please check your configuration."
             )
-        except OpenAIError as e:
+        except APIError as e:
             raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
