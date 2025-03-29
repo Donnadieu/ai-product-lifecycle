@@ -22,21 +22,23 @@ def handle_response(response: httpx.Response, step: str) -> Dict[str, Any]:
 
 async def orchestrate_feature_pipeline(idea: str) -> dict:
     try:
-        async with httpx.AsyncClient(base_url="http://localhost:8000") as client:
+        # Use relative URLs since we're calling endpoints within the same app
+        async with httpx.AsyncClient() as client:
             # Generate stakeholder requirements
-            r1 = await client.post("/generate-stakeholder-requirements/", json={"idea": idea})
+            # Generate stakeholder requirements
+            r1 = await client.post("http://localhost:8000/generate-stakeholder-requirements/", json={"idea": idea})
             stakeholder = handle_response(r1, "stakeholder requirements")
 
             # Generate PM specifications
-            r2 = await client.post("/generate-pm-specs/", json={"idea": stakeholder})
+            r2 = await client.post("http://localhost:8000/generate-pm-specs/", json={"idea": stakeholder})
             prd = handle_response(r2, "PM specifications")
 
             # Generate engineering plan
-            r3 = await client.post("/generate-engineering-plan/", json={"prd": prd})
+            r3 = await client.post("http://localhost:8000/generate-engineering-plan/", json={"prd": prd})
             eng = handle_response(r3, "engineering plan")
 
             # Generate tickets
-            r4 = await client.post("/generate-tickets/", json={"plan": eng})
+            r4 = await client.post("http://localhost:8000/generate-tickets/", json={"plan": eng})
             tickets = handle_response(r4, "tickets")
 
         return {

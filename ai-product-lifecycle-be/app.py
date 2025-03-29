@@ -72,26 +72,29 @@ async def generate_pm_specs(data: dict):
     return {"output": output}
 
 @app.post("/generate-engineering-plan/")
+@handle_llm_errors
 async def generate_engineering_plan(data: dict):
     prd = data.get("prd", "")
     if not prd:
         raise HTTPException(status_code=400, detail="Missing 'prd'")
     
-    context = { "openai_api_key": os.getenv("OPENAI_API_KEY") }
+    context = {"openai_api_key": api_key}
     output = run_engineering_crew(prd, context)
     return {"output": output}
 
 @app.post("/generate-tickets/")
+@handle_llm_errors
 async def generate_tickets(data: dict):
     plan = data.get("plan", "")
     if not plan:
         raise HTTPException(status_code=400, detail="Missing 'plan'")
     
-    context = { "openai_api_key": os.getenv("OPENAI_API_KEY") }
+    context = {"openai_api_key": api_key}
     output = run_ticketing_crew(plan, context)
     return {"output": output}
 
 @app.post("/build-feature/")
+@handle_llm_errors
 async def build_feature(data: dict):
     idea = data.get("idea")
     if not idea:
