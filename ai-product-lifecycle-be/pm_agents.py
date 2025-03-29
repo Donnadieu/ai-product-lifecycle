@@ -1,13 +1,10 @@
 from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+from llm_config import LLMConfig
 
-def run_pm_crew(prd_input: str, context: dict = {}) -> str:
-    config = {
-        "llm_config": {
-            "model": "gpt-4",
-            "temperature": 0.4,
-            "api_key": context.get("openai_api_key") or "YOUR_API_KEY"
-        }
-    }
+def run_pm_crew(prd_input: str) -> str:
+    # Get LLM configuration
+    llm = LLMConfig()
+    config = llm.get_config(temperature=0.4)
 
     pm1 = AssistantAgent(name="PM1", system_message="Focus on feature completeness and end-user goals.", **config)
     pm2 = AssistantAgent(name="PM2", system_message="Focus on business alignment and product vision.", **config)

@@ -1,13 +1,10 @@
 from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+from llm_config import LLMConfig
 
-def run_engineering_crew(prd_input: str, context: dict = {}) -> str:
-    config = {
-        "llm_config": {
-            "model": "gpt-4",
-            "temperature": 0.4,
-            "api_key": context.get("openai_api_key") or "YOUR_API_KEY"
-        }
-    }
+def run_engineering_crew(prd_input: str) -> str:
+    # Get LLM configuration
+    llm = LLMConfig()
+    config = llm.get_config(temperature=0.4)
 
     eng1 = AssistantAgent(name="Eng1", system_message="Focus on effort estimation and technical complexity.", **config)
     eng2 = AssistantAgent(name="Eng2", system_message="Focus on tech stack, system design, and integration requirements.", **config)

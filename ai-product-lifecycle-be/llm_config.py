@@ -13,8 +13,13 @@ class LLMProvider(str, Enum):
 
 class LLMConfig:
     def __init__(self, provider: str = None, api_key: Optional[str] = None):
+        from dotenv import load_dotenv
+        load_dotenv()
+        
         self.provider = provider or os.getenv("LLM_PROVIDER", "openai")
+        print(f"Using provider: {self.provider}")
         self.api_key = api_key or self._get_api_key()
+        print(f"API key length: {len(self.api_key) if self.api_key else 0}")
         self._setup_client()
 
     def _get_api_key(self) -> str:
@@ -67,7 +72,9 @@ class LLMConfig:
                         "api_key": self.api_key,
                         "base_url": "https://api.deepseek.com/v1"
                     }],
-                    "use_deepseek": True
+                    "model": "deepseek-chat",
+                    "api_key": self.api_key,
+                    "base_url": "https://api.deepseek.com/v1"
                 }
             }
         return {}

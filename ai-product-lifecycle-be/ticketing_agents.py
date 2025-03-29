@@ -1,13 +1,10 @@
 from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+from llm_config import LLMConfig
 
-def run_ticketing_crew(plan_input: str, context: dict = {}) -> str:
-    config = {
-        "llm_config": {
-            "model": "gpt-4",
-            "temperature": 0.4,
-            "api_key": context.get("openai_api_key") or "YOUR_API_KEY"
-        }
-    }
+def run_ticketing_crew(plan_input: str) -> str:
+    # Get LLM configuration
+    llm = LLMConfig()
+    config = llm.get_config(temperature=0.4)
 
     pm = AssistantAgent(name="PM", system_message="Generate functional user stories and group them by feature.", **config)
     tech = AssistantAgent(name="TechLead", system_message="For each story, generate developer subtasks and architecture notes.", **config)
