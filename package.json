@@ -1,0 +1,14 @@
+{
+  "name": "ai-product-lifecycle",
+  "version": "1.0.0",
+  "description": "AI Product Lifecycle Management System",
+  "scripts": {
+    "start:fe": "cd ai-product-lifecycle-ui && npm start",
+    "start:be": "cd ai-product-lifecycle-be && uvicorn app:app --reload",
+    "start": "concurrently \"npm run start:be\" \"npm run start:fe\"",
+    "install": "cd ai-product-lifecycle-ui && npm install && cd ../ai-product-lifecycle-be && pip install -r requirements.txt"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
