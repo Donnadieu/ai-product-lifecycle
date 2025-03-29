@@ -1,45 +1,44 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from openai import OpenAI
-from openai import APIError, RateLimitError, AuthenticationError
 from dotenv import load_dotenv
 from stakeholder_agents import run_stakeholder_crew
 from pm_agents import run_pm_crew
 from engineering_agents import run_engineering_crew
 from ticketing_agents import run_ticketing_crew
 from feature_orchestrator import orchestrate_feature_pipeline
+from llm_config import LLMConfig, LLMProvider
 import os
 from functools import wraps
 
-def handle_openai_errors(func):
+def handle_llm_errors(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
-        except RateLimitError:
-            raise HTTPException(
-                status_code=429,
-                detail="OpenAI API rate limit exceeded. Please try again later or check your quota."
-            )
-        except AuthenticationError:
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid OpenAI API key. Please check your configuration."
-            )
-        except APIError as e:
-            raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
+            if "rate limit" in str(e).lower():
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"LLM API rate limit exceeded. Please try again later or check your quota."
+                )
+            elif "auth" in str(e).lower() or "key" in str(e).lower():
+                raise HTTPException(
+                    status_code=401,
+                    detail=f"Invalid API key. Please check your configuration."
+                )
+            else:
+                raise HTTPException(status_code=500, detail=f"LLM API error: {str(e)}")
     return wrapper
 
 load_dotenv()
 
-# Verify OpenAI API key is set
-api_key = os.getenv("OPENAI_API_KEY")
+# Initialize LLM configuration
+llm_provider = os.getenv("LLM_PROVIDER", LLMProvider.OPENAI)
+api_key = os.getenv(f"{llm_provider.upper()}_API_KEY")
 if not api_key:
-    raise ValueError("OPENAI_API_KEY environment variable is not set")
+    raise ValueError(f"{llm_provider.upper()}_API_KEY environment variable is not set")
 
-client = OpenAI(api_key=api_key)
+llm_config = LLMConfig(provider=llm_provider, api_key=api_key)
 app = FastAPI()
 
 app.add_middleware(
@@ -51,7 +50,7 @@ app.add_middleware(
 )
 
 @app.post("/generate-stakeholder-requirements/")
-@handle_openai_errors
+@handle_llm_errors
 async def generate_stakeholder_requirements(data: dict):
     idea = data.get("idea", "")
     if not idea:
@@ -62,7 +61,7 @@ async def generate_stakeholder_requirements(data: dict):
     return {"output": output}
 
 @app.post("/generate-pm-specs/")
-@handle_openai_errors
+@handle_llm_errors
 async def generate_pm_specs(data: dict):
     idea = data.get("idea", "")
     if not idea:

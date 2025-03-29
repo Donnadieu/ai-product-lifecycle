@@ -1,13 +1,9 @@
 from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+from llm_config import LLMConfig
 
 def run_stakeholder_crew(product_idea: str, context: dict = {}) -> str:
-    config = {
-        "llm_config": {
-            "model": "gpt-4",
-            "temperature": 0.4,
-            "api_key": context.get("openai_api_key") or "YOUR_API_KEY"
-        }
-    }
+    llm = LLMConfig(api_key=context.get("openai_api_key"))
+    config = llm.get_config(temperature=0.4)
 
     # Define specialized stakeholder agents
     marketing = AssistantAgent(

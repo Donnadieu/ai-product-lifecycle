@@ -11,6 +11,9 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
 
+// Use environment variable or default to localhost in development
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 type AgentOutput = Record<string, string>;
 
 const emojiMap: Record<string, string> = {
@@ -45,14 +48,24 @@ const FullFeatureView: React.FC = () => {
     setLoading(true);
     setOutput(null);
     try {
-      const response = await axios.post("http://localhost:8000/build-feature/", {
+      const response = await axios.post(`${API_URL}/build-feature/`, {
         idea
       });
-      const agentSections = splitByAgent(response.data.output);
+      
+      // Get the combined output from all agents
+      const combinedOutput = [
+        `### StakeholderAI:\n${response.data.stakeholder}`,
+        `### ProductManagerAI:\n${response.data.prd}`,
+        `### EngineeringAI:\n${response.data.engineering}`,
+        `### TicketingAI:\n${response.data.tickets}`
+      ].join('\n\n');
+      
+      const agentSections = splitByAgent(combinedOutput);
       setOutput(agentSections);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error:", error);
-      alert("Something went wrong!");
+      const message = error.response?.data?.detail || error.message || "Something went wrong!";
+      alert(message);
     } finally {
       setLoading(false);
     }
