@@ -70,7 +70,8 @@ class LLMConfig:
                         "model": "deepseek-chat",
                         "temperature": temperature,
                         "api_key": self.api_key,
-                        "base_url": "https://api.deepseek.com/v1"
+                        "base_url": "https://api.deepseek.com/v1",
+                        "price": [0.0002, 0.0002]  # $0.0002 per 1k tokens for both prompt and completion
                     }],
                     "model": "deepseek-chat",
                     "api_key": self.api_key,
