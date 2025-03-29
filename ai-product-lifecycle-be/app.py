@@ -98,3 +98,55 @@ async def build_feature(data: dict):
     
     result = await orchestrate_feature_pipeline(idea)
     return result
+
+@app.post("/quick-test/")
+@handle_llm_errors
+async def quick_test(data: dict):
+    """Quick test endpoint that makes a single LLM call for faster testing"""
+    idea = data.get("idea")
+    if not idea:
+        raise HTTPException(status_code=400, detail="Missing 'idea'")
+    
+    llm = LLMConfig()
+    
+    # Create a simple prompt for quick testing
+    prompt = f"""Given this product idea: {idea}
+    
+    Provide a quick analysis in this JSON format:
+    {{
+        "summary": "Brief 2-3 sentence summary",
+        "key_features": ["3-4 main features"],
+        "technical_stack": ["2-3 recommended technologies"],
+        "challenges": ["2-3 potential challenges"]
+    }}
+    
+    Return ONLY the JSON object, no additional text or formatting.
+    Make sure the response is valid JSON that can be parsed."""
+    
+    # Make a single LLM call
+    response = await llm.generate_response(prompt, temperature=0.7)
+    
+    # Try to parse response as JSON
+    try:
+        import json
+        # Clean up the response - remove any markdown formatting if present
+        clean_response = response.strip().strip('`').strip()
+        if clean_response.startswith('```json'):
+            clean_response = clean_response[7:]
+        if clean_response.startswith('```'):
+            clean_response = clean_response[3:]
+        clean_response = clean_response.strip('`').strip()
+        
+        # Parse and validate JSON
+        parsed = json.loads(clean_response)
+        
+        # Ensure all required fields are present
+        required_fields = ['summary', 'key_features', 'technical_stack', 'challenges']
+        for field in required_fields:
+            if field not in parsed:
+                parsed[field] = []
+                
+        return parsed
+    except json.JSONDecodeError:
+        # If parsing fails, return the raw response
+        return response
