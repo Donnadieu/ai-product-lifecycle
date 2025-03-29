@@ -56,8 +56,7 @@ async def generate_stakeholder_requirements(data: dict):
     if not idea:
         raise HTTPException(status_code=400, detail="Missing 'idea'")
     
-    context = {"openai_api_key": api_key}
-    output = run_stakeholder_crew(idea, context)
+    output = run_stakeholder_crew(idea)
     return {"output": output}
 
 @app.post("/generate-pm-specs/")
@@ -67,8 +66,7 @@ async def generate_pm_specs(data: dict):
     if not idea:
         raise HTTPException(status_code=400, detail="Missing 'idea'")
     
-    context = {"openai_api_key": api_key}
-    output = run_pm_crew(idea, context)
+    output = run_pm_crew(idea)
     return {"output": output}
 
 @app.post("/generate-engineering-plan/")
@@ -78,8 +76,7 @@ async def generate_engineering_plan(data: dict):
     if not prd:
         raise HTTPException(status_code=400, detail="Missing 'prd'")
     
-    context = {"openai_api_key": api_key}
-    output = run_engineering_crew(prd, context)
+    output = run_engineering_crew(prd)
     return {"output": output}
 
 @app.post("/generate-tickets/")
@@ -89,8 +86,7 @@ async def generate_tickets(data: dict):
     if not plan:
         raise HTTPException(status_code=400, detail="Missing 'plan'")
     
-    context = {"openai_api_key": api_key}
-    output = run_ticketing_crew(plan, context)
+    output = run_ticketing_crew(plan)
     return {"output": output}
 
 @app.post("/build-feature/")

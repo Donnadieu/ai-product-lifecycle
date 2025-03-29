@@ -2,8 +2,12 @@ from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
 from llm_config import LLMConfig
 
 def run_stakeholder_crew(product_idea: str, context: dict = {}) -> str:
-    llm = LLMConfig(api_key=context.get("openai_api_key"))
+    # Get LLM configuration
+    llm = LLMConfig()
     config = llm.get_config(temperature=0.4)
+    
+    # Configure termination message based on provider
+    termination_msg = "TERMINATE" if llm.provider == "openai" else "FINISHED"
 
     # Define specialized stakeholder agents
     marketing = AssistantAgent(

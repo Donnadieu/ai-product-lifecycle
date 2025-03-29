@@ -41,27 +41,33 @@ class LLMConfig:
         if self.provider == LLMProvider.OPENAI:
             return {
                 "llm_config": {
-                    "model": "gpt-3.5-turbo",  # Use GPT-3.5 for development
-                    "temperature": temperature,
-                    "api_key": self.api_key
+                    "config_list": [{
+                        "model": "gpt-3.5-turbo",
+                        "temperature": temperature,
+                        "api_key": self.api_key
+                    }]
                 }
             }
         elif self.provider == LLMProvider.GEMINI:
             return {
                 "llm_config": {
-                    "model": "gemini-pro",
-                    "temperature": temperature,
-                    "api_key": self.api_key,
-                    "config_list": [{"model": "gemini-pro"}]
+                    "config_list": [{
+                        "model": "gemini-pro",
+                        "temperature": temperature,
+                        "api_key": self.api_key
+                    }]
                 }
             }
         elif self.provider == LLMProvider.DEEPSEEK:
             return {
                 "llm_config": {
-                    "model": "deepseek-chat",
-                    "temperature": temperature,
-                    "api_key": self.api_key,
-                    "base_url": self.base_url
+                    "config_list": [{
+                        "model": "deepseek-chat",
+                        "temperature": temperature,
+                        "api_key": self.api_key,
+                        "base_url": "https://api.deepseek.com/v1"
+                    }],
+                    "use_deepseek": True
                 }
             }
         return {}
